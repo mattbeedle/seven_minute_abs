@@ -2,7 +2,7 @@ class Ab
   include MongoMapper::Document
 
   key :testname,      String, :index => true
-  key :version,       String, :index => true
+  key :version,       Integer, :index => true
   key :display_count, Integer
   key :click_count,   Integer
   key :stub,          String, :index => true
