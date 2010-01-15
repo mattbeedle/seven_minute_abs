@@ -1,11 +1,22 @@
-class Ab < ActiveRecord::Base
+class Ab
+  include MongoMapper::Document
+
+  key :testname,      String, :index => true
+  key :version,       String, :index => true
+  key :display_count, Integer
+  key :click_count,   Integer
+  key :stub,          String, :index => true
+  timestamps!
 
   def self.click!(stub)
-    self.update_all("click_count = click_count + 1", ["stub = ?", stub])
+    #self.update_all("click_count = click_count + 1", ["stub = ?", stub])
+    # Should use $inc, will get back to this
+    self.find_all_by_stub(stub).each {|ab| ab.update_attributes :click_count => ab.click_count + 1 }
   end
 
   def self.displayed!(stub)
-    self.update_all("display_count = display_count + 1", ["stub = ?", stub])
+    #self.update_all("display_count = display_count + 1", ["stub = ?", stub])
+    self.find_all_by_stub(stub).each {|ab| ab.update_attributes :display_count => ab.display_count + 1 }
   end
 
   def self.display!(testname, version)
@@ -29,9 +40,7 @@ class Ab < ActiveRecord::Base
     # future memcache tutorial
     # fb_user = memcache_me(key) {
       ab = self.find(:first,
-                     :conditions => ["testname = ? and version = ?",
-                                      testname,
-                                      version])
+                     :conditions => { :test_name => testname, :version => version })
       ab ||= self.create(:testname => testname, :version => version)
       ab
     # }
