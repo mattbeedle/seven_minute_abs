@@ -11,12 +11,12 @@ class Ab
   def self.click!(stub)
     #self.update_all("click_count = click_count + 1", ["stub = ?", stub])
     # Should use $inc, will get back to this
-    self.find_all_by_stub(stub).each {|ab| ab.update_attributes :click_count => ab.click_count + 1 }
+    self.find_all_by_stub(stub).each {|ab| ab.update_attributes :click_count => (ab.click_count || 0) + 1 }
   end
 
   def self.displayed!(stub)
     #self.update_all("display_count = display_count + 1", ["stub = ?", stub])
-    self.find_all_by_stub(stub).each {|ab| ab.update_attributes :display_count => ab.display_count + 1 }
+    self.find_all_by_stub(stub).each {|ab| ab.update_attributes :display_count => (ab.display_count || 0) + 1 }
   end
 
   def self.display!(testname, version)
