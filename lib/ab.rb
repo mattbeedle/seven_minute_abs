@@ -8,6 +8,10 @@ class Ab
   key :stub,          String, :index => true
   timestamps!
 
+  before_create :set_stub
+
+  validates_uniqueness_of :testname, :scope => :version
+
   def self.click!(stub)
     #self.update_all("click_count = click_count + 1", ["stub = ?", stub])
     # Should use $inc, will get back to this
@@ -31,16 +35,12 @@ class Ab
     ab
   end
 
-  def before_create
-    self.stub = random_string(10) if !self.stub?
-  end
-
   def self.find_test(testname, version)
     key = "ab:#{testname}_v:#{version}"
     # future memcache tutorial
     # fb_user = memcache_me(key) {
       ab = self.find(:first,
-                     :conditions => { :test_name => testname, :version => version })
+                     :conditions => { :testname => testname, :version => version })
       ab ||= self.create(:testname => testname, :version => version)
       ab
     # }
@@ -74,7 +74,7 @@ class Ab
   #   end
 
   def percent_clicked
-    (self.click_count.to_f*10000000 / self.display_count).floor/100000
+    (self.click_count.to_f * 10000000 / self.display_count).floor / 100000
   end
 
 protected
@@ -86,4 +86,7 @@ protected
     return newpass
   end
 
+  def set_stub
+    self.stub = random_string(10) if self.stub.blank?
+  end
 end
